@@ -1,0 +1,69 @@
+<!-- 
+  微型聊天室:
+  1. liveServer 開啟此 html 檔
+  2. node server.js 開啟伺服器端
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #txtShow {
+      width: 500px;
+      height: 500px;
+    }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", event => {
+      let keyinDom = document.querySelector('#txtInput')
+      let showDom = document.querySelector('#txtShow')
+      let btnSend = document.querySelector("#btnSend")
+
+      btnSend.addEventListener('click', () => {
+        let txt = keyinDom.value;
+        ws.send(txt);
+      })
+      keyinDom.addEventListener('keypress', (e) => {
+        if (e.keyCode === 13) {
+          e.preventDefault()
+          btnSend.click()
+        }
+      })
+
+      // 建立 WebSocket (本例 server 端於本地運行)
+      let url = 'ws://localhost:5005'
+      var ws = new WebSocket(url)
+      // 監聽連線狀態
+      ws.onopen = () => {
+        console.log('open connection')
+      }
+      ws.onclose = () => {
+        console.log('close connection');
+      }
+
+      //接收 Server 發送的訊息
+      ws.onmessage = event => {
+        let txt = event.data
+        if (!showDom.value) showDom.value = txt
+        else showDom.value = showDom.value + "\n" + txt
+        keyinDom.value = ""
+      }
+    });
+  </script>
+</head>
+
+<body>
+  <textarea id="txtShow" disabled></textarea>
+  <div>
+    <input id="txtInput" type="text">
+    <button id="btnSend">送出</button>
+  </div>
+</body>
+
+</html>
